@@ -2,6 +2,8 @@
 
 A full-stack AI chat app that lets you upload a PDF and have a conversation with it. Built as a self-studied project about streaming responses (SSE), retrieval-augmented generation.
 
+![Dochat demo](demo/demo.gif)
+
 ## What it does
 
 - **Streaming chat**: responses come back token-by-token over Server-Sent Events, not as one blocking request.
@@ -62,7 +64,7 @@ npm install
 npm run dev
 ```
 
-Frontend runs on `http://localhost:3000` and proxies `/api/*` requests to the backend (see `vite.config.js`).
+Frontend runs on `http://localhost:3000` and proxies `/api/*` requests to the backend (see `vite.config.ts`).
 
 ## Current limitations
 
