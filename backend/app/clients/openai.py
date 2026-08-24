@@ -1,7 +1,8 @@
-import os
 from openai import OpenAI
 
-openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+from app.core.config import settings
 
-CHAT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o")
-EMBED_MODEL = os.environ.get("OPENAI_EMBED_MODEL", "text-embedding-3-small")
+openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+CHAT_MODEL = settings.OPENAI_MODEL
+EMBED_MODEL = settings.OPENAI_EMBED_MODEL

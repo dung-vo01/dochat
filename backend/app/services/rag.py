@@ -1,7 +1,6 @@
-from app.clients.openai import openai_client, EMBED_MODEL
 from app.clients.chroma import get_collection
+from app.clients.openai import EMBED_MODEL, openai_client
 
-# To recognize "summary" intention
 SUMMARY_KEYWORDS = {
     "summarize",
     "summary",
@@ -42,10 +41,8 @@ def build_system_prompt(context_chunks: list[str]) -> str:
         return "You are a helpful assistant."
 
     context_text = "\n\n---\n\n".join(context_chunks)
-    return f"""
-        You are a helpful assistant. Answer questions based on the context below.
-        If the answer isn't in the context, say so and don't make things up.
+    return f"""You are a helpful assistant. Answer questions based on the context below.
+            If the answer isn't in the context, say so — don't make things up.
 
-        Context:
-        {context_text}
-    """
+            Context:
+            {context_text}"""
