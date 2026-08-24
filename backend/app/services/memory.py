@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -74,6 +74,11 @@ async def update_conversation_title(
         .where(Conversation.id == conversation_id)
         .values(title=title[:50])
     )
+    await db.commit()
+
+
+async def clear_messages(db: AsyncSession, conversation_id: int) -> None:
+    await db.execute(delete(Message).where(Message.conversation_id == conversation_id))
     await db.commit()
 
 

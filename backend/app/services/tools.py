@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.clients.openai import openai_client
-from app.services.memory import delete_conversation
+from app.services.memory import clear_messages
 
 TOOLS = [
     {
@@ -73,7 +73,7 @@ async def handle_clear_chat_history(
     conversation_id: int, db: AsyncSession, **kwargs
 ) -> str:
     try:
-        await delete_conversation(db, conversation_id)
+        await clear_messages(db, conversation_id)
         return json.dumps({"success": True, "message": "Chat history cleared."})
     except Exception as e:
         return json.dumps({"success": False, "error": str(e)})
