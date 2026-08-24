@@ -12,8 +12,8 @@ SUMMARY_KEYWORDS = {
 }
 
 
-def embed(texts: list[str]) -> list[list[float]]:
-    response = openai_client.embeddings.create(model=EMBED_MODEL, input=texts)
+async def embed(texts: list[str]) -> list[list[float]]:
+    response = await openai_client.embeddings.create(model=EMBED_MODEL, input=texts)
     return [item.embedding for item in response.data]
 
 
@@ -21,14 +21,14 @@ def is_summary_query(query: str) -> bool:
     return any(kw in query.lower() for kw in SUMMARY_KEYWORDS)
 
 
-def retrieve(query: str, n_results: int = 3) -> list[str]:
+async def retrieve(query: str, n_results: int = 3) -> list[str]:
     collection = get_collection()
 
     if is_summary_query(query):
         results = collection.get()
         return results["documents"] if results["documents"] else []
 
-    query_embedding = embed([query])[0]
+    query_embedding = (await embed([query]))[0]
     results = collection.query(
         query_embeddings=[query_embedding],
         n_results=n_results,

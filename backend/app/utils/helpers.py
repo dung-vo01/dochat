@@ -1,11 +1,13 @@
+import io
+
 from pypdf import PdfReader
 
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 
 
-def extract_text_from_pdf(file) -> str:
-    reader = PdfReader(file)
+def extract_text_from_pdf(data: bytes) -> str:
+    reader = PdfReader(io.BytesIO(data))
     return "\n".join(page.extract_text() or "" for page in reader.pages)
 
 

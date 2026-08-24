@@ -24,7 +24,7 @@ async def upload_file_api(file: UploadFile):
         raise HTTPException(status_code=400, detail="Could not extract text from PDF")
 
     chunks = chunk_text(text)
-    embeddings = embed(chunks)
+    embeddings = await embed(chunks)
     ids = [str(uuid.uuid4()) for _ in chunks]
 
     try:
