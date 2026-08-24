@@ -3,8 +3,22 @@ import styles from "./index.module.scss";
 import { useChat } from "@/hooks/useChat";
 import { useUpload } from "@/hooks/useUpload";
 
-const Chat = () => {
-  const { messages, input, setInput, isStreaming, sendMessage } = useChat();
+interface Props {
+  conversationId: number | null;
+  handleFirstMessage: () => Promise<void>;
+}
+
+const Chat = ({ conversationId, handleFirstMessage }: Props) => {
+  const {
+    messages,
+    input,
+    setInput,
+    isStreaming,
+    toolLabel,
+    sendMessage,
+    cancel,
+  } = useChat(conversationId, handleFirstMessage);
+
   const { uploadStatus, uploadStatusText, handleFileChange } = useUpload();
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -14,11 +28,16 @@ const Chat = () => {
     }
   };
 
+  if (!conversationId) {
+    return (
+      <div className={styles.empty}>
+        <p>Select a conversation or start a new one.</p>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Dochat</h1>
-
-      {/* Upload */}
       <div className={styles.uploadArea}>
         <label className={styles.uploadLabel}>
           Upload PDF
@@ -35,7 +54,6 @@ const Chat = () => {
         </span>
       </div>
 
-      {/* Messages */}
       <div className={styles.messageList}>
         {messages.map((msg, i) => (
           <div
@@ -48,12 +66,19 @@ const Chat = () => {
             <div className={styles.messageContent}>{msg.content}</div>
           </div>
         ))}
+
+        {/* Show tool label or typing indicator */}
         {isStreaming && (
-          <div className={styles.typingIndicator}>Assistant is typing...</div>
+          <div
+            className={
+              toolLabel ? styles.toolIndicator : styles.typingIndicator
+            }
+          >
+            {toolLabel ?? "Assistant is typing..."}
+          </div>
         )}
       </div>
 
-      {/* Input */}
       <div className={styles.inputRow}>
         <textarea
           className={styles.textarea}
@@ -68,13 +93,19 @@ const Chat = () => {
           }
           disabled={isStreaming}
         />
-        <button
-          className={styles.sendButton}
-          onClick={() => void sendMessage()}
-          disabled={isStreaming || !input.trim()}
-        >
-          Send
-        </button>
+        {isStreaming ? (
+          <button className={styles.stopButton} onClick={cancel}>
+            Stop
+          </button>
+        ) : (
+          <button
+            className={styles.sendButton}
+            onClick={() => void sendMessage()}
+            disabled={!input.trim()}
+          >
+            Send
+          </button>
+        )}
       </div>
     </div>
   );

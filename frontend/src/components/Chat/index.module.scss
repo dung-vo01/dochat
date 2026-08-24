@@ -2,15 +2,17 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-width: 42rem;
-  margin: 0 auto;
   padding: 1rem;
+  overflow: hidden;
 }
 
-.title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 0.875rem;
 }
 
 .uploadArea {
@@ -48,11 +50,9 @@
   &.done {
     color: #16a34a;
   }
-
   &.error {
     color: #dc2626;
   }
-
   &.uploading {
     color: #2563eb;
   }
@@ -76,7 +76,6 @@
     background-color: #dbeafe;
     margin-left: auto;
   }
-
   &.assistant {
     background-color: #f3f4f6;
     margin-right: auto;
@@ -96,6 +95,12 @@
 .typingIndicator {
   font-size: 0.875rem;
   color: #9ca3af;
+}
+
+.toolIndicator {
+  font-size: 0.875rem;
+  color: #7c3aed;
+  font-style: italic;
 }
 
 .inputRow {
@@ -128,5 +133,18 @@
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+}
+
+.stopButton {
+  background-color: #ef4444;
+  color: white;
+  padding: 0 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #dc2626;
   }
 }

@@ -21,7 +21,7 @@ export function useUpload() {
     }
   };
 
-  const uploadStatusText = () => {
+  const uploadStatusText = (): string => {
     switch (uploadStatus) {
       case "idle":
         return "No document uploaded - chatting without context";
