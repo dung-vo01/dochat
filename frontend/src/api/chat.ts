@@ -1,28 +1,7 @@
 import type { SSEChunk } from "@/types";
+import { extractErrorDetail } from "@/api/http";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
-
-async function extractErrorDetail(res: Response): Promise<string> {
-  try {
-    const body = await res.json();
-    if (typeof body?.detail === "string") return body.detail;
-  } catch {
-    // response wasn't JSON — fall through to the generic message
-  }
-  return `Request failed: ${res.status}`;
-}
-
-export async function uploadPdf(file: File): Promise<void> {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const res = await fetch(`${BASE_URL}/api/upload`, {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!res.ok) throw new Error(await extractErrorDetail(res));
-}
 
 export async function streamChat(
   conversationId: number,

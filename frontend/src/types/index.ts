@@ -16,7 +16,12 @@ export interface ToolChunk {
 
 export type SSEChunk = TextChunk | ToolChunk | ErrorChunk;
 
-export type UploadStatus = "idle" | "uploading" | "done" | "error";
+export interface Document {
+  id: number;
+  filename: string;
+  chunk_count: number;
+  created_at: string;
+}
 
 export interface Conversation {
   id: number;

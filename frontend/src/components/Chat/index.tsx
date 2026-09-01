@@ -1,7 +1,7 @@
 import { type KeyboardEvent } from "react";
 import styles from "./index.module.scss";
 import { useChat } from "@/hooks/useChat";
-import { useUpload } from "@/hooks/useUpload";
+import { useDocuments } from "@/hooks/useDocuments";
 
 interface Props {
   conversationId: number | null;
@@ -19,7 +19,8 @@ const Chat = ({ conversationId, handleFirstMessage }: Props) => {
     cancel,
   } = useChat(conversationId, handleFirstMessage);
 
-  const { uploadStatus, uploadStatusText, handleFileChange } = useUpload();
+  const { documents, isUploading, error, handleFileChange, handleDelete } =
+    useDocuments(conversationId);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -45,13 +46,44 @@ const Chat = ({ conversationId, handleFirstMessage }: Props) => {
             type="file"
             accept=".pdf"
             className={styles.uploadInput}
-            onChange={handleFileChange}
-            disabled={uploadStatus === "uploading"}
+            onChange={(e) => void handleFileChange(e)}
+            disabled={isUploading}
           />
         </label>
-        <span className={`${styles.uploadStatus} ${styles[uploadStatus]}`}>
-          {uploadStatusText()}
-        </span>
+
+        {documents.length === 0 && !isUploading && (
+          <span className={styles.uploadStatus}>
+            No documents uploaded - chatting without context
+          </span>
+        )}
+
+        {documents.length > 0 && (
+          <ul className={styles.documentList}>
+            {documents.map((doc) => (
+              <li key={doc.id} className={styles.documentItem}>
+                <span className={styles.documentName}>{doc.filename}</span>
+                <button
+                  className={styles.documentDeleteButton}
+                  onClick={() => void handleDelete(doc.id)}
+                  title="Remove document"
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {isUploading && (
+          <span className={`${styles.uploadStatus} ${styles.uploading}`}>
+            Uploading...
+          </span>
+        )}
+        {error && (
+          <span className={`${styles.uploadStatus} ${styles.error}`}>
+            {error}
+          </span>
+        )}
       </div>
 
       <div className={styles.messageList}>
@@ -87,8 +119,8 @@ const Chat = ({ conversationId, handleFirstMessage }: Props) => {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={
-            uploadStatus === "done"
-              ? "Ask something about the document..."
+            documents.length > 0
+              ? "Ask something about the documents..."
               : "Type a message..."
           }
           disabled={isStreaming}
