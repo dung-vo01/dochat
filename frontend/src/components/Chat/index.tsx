@@ -1,4 +1,4 @@
-import { type KeyboardEvent } from "react";
+import { useEffect, useRef, type KeyboardEvent } from "react";
 import styles from "./index.module.scss";
 import { useChat } from "@/hooks/useChat";
 import { useDocuments } from "@/hooks/useDocuments";
@@ -21,6 +21,12 @@ const Chat = ({ conversationId, handleFirstMessage }: Props) => {
 
   const { documents, isUploading, error, handleFileChange, handleDelete } =
     useDocuments(conversationId);
+
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "auto" });
+  }, [messages, isStreaming, toolLabel]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -109,6 +115,8 @@ const Chat = ({ conversationId, handleFirstMessage }: Props) => {
             {toolLabel ?? "Assistant is typing..."}
           </div>
         )}
+
+        <div ref={bottomRef} />
       </div>
 
       <div className={styles.inputRow}>
