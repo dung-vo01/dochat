@@ -21,17 +21,19 @@ def is_summary_query(query: str) -> bool:
     return any(kw in query.lower() for kw in SUMMARY_KEYWORDS)
 
 
-async def retrieve(query: str, n_results: int = 3) -> list[str]:
+async def retrieve(query: str, conversation_id: int, n_results: int = 3) -> list[str]:
     collection = get_collection()
+    where = {"conversation_id": conversation_id}
 
     if is_summary_query(query):
-        results = collection.get()
+        results = collection.get(where=where)
         return results["documents"] if results["documents"] else []
 
     query_embedding = (await embed([query]))[0]
     results = collection.query(
         query_embeddings=[query_embedding],
         n_results=n_results,
+        where=where,
     )
     return results["documents"][0] if results["documents"] else []
 

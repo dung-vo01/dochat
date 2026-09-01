@@ -25,7 +25,7 @@ async def stream_chat(data: ChatRequest, db: AsyncSession) -> AsyncGenerator[str
     try:
         # Run save + RAG retrieval concurrently as they dont depend on each other
         context_chunks, _ = await asyncio.gather(
-            retrieve(data.message),
+            retrieve(data.message, data.conversation_id),
             save_message(db, data.conversation_id, "user", data.message),
         )
 

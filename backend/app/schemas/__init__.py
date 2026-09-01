@@ -29,6 +29,15 @@ class ChatRequest(BaseModel):
     message: str
 
 
+class DocumentResponse(BaseModel):
+    model_config = {"from_attributes": True}
+
+    id: int
+    filename: str
+    chunk_count: int
+    created_at: datetime
+
+
 class ConversationDetail(BaseModel):
     model_config = {"from_attributes": True}
 

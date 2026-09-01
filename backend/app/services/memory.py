@@ -3,6 +3,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.clients.chroma import get_collection
 from app.models import Conversation, Message
 from app.schemas import ConversationDetail, ConversationResponse, MessageResponse
 
@@ -87,6 +88,11 @@ async def delete_conversation(db: AsyncSession, conversation_id: int) -> None:
 
     if not conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
+
+    # The Document rows cascade-delete with the conversation, but their Chroma
+    # vectors don't, clean those up explicitly or they'd become permanently
+    # orphaned storage
+    get_collection().delete(where={"conversation_id": conversation_id})
 
     await db.delete(conversation)
     await db.commit()
