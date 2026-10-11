@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { streamChat } from "@/api/chat";
-import type { ChatMessage } from "@/types";
+import type { ChatMessage, Source } from "@/types";
 import { fetchConversation } from "@/api/conversations";
 
 const TOOL_LABELS: Record<string, string> = {
@@ -41,6 +41,30 @@ export function useChat(
     });
   };
 
+  const setSources = (sources: Source[]) => {
+    setMessages((prev) => {
+      const updated = [...prev];
+      const last = updated[updated.length - 1];
+      updated[updated.length - 1] = { ...last, sources };
+      return updated;
+    });
+  };
+
+  // If the stream failed before any text arrived, replace the empty assistant
+  // bubble with the error instead of leaving a blank bubble above it.
+  const showError = (message: string) => {
+    setMessages((prev) => {
+      const last = prev[prev.length - 1];
+      const error: ChatMessage = {
+        role: "assistant",
+        content: `Error: ${message}`,
+      };
+      return last?.role === "assistant" && last.content === ""
+        ? [...prev.slice(0, -1), error]
+        : [...prev, error];
+    });
+  };
+
   const sendMessage = async (): Promise<void> => {
     if (!input.trim() || isStreaming || !conversationId) return;
 
@@ -65,14 +89,12 @@ export function useChat(
         input,
         appendChunk,
         (toolName) => setToolLabel(TOOL_LABELS[toolName] ?? "Using a tool..."),
+        setSources,
         controller.signal,
       );
     } catch (err) {
       if (err instanceof Error && err.name !== "AbortError") {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: `Error: ${err.message}` },
-        ]);
+        showError(err.message);
       }
     } finally {
       setIsStreaming(false);

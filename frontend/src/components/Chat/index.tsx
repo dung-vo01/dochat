@@ -102,6 +102,21 @@ const Chat = ({ conversationId, handleFirstMessage }: Props) => {
           >
             <div className={styles.messageRole}>{msg.role}</div>
             <div className={styles.messageContent}>{msg.content}</div>
+            {msg.sources && msg.sources.length > 0 && (
+              <ul className={styles.sources} aria-label="Sources">
+                {msg.sources.map((source) => (
+                  <li
+                    key={source.n}
+                    className={styles.source}
+                    title={source.snippet}
+                  >
+                    <span className={styles.sourceNumber}>{source.n}</span>
+                    {source.filename}
+                    {source.page ? ` · p.${source.page}` : ""}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         ))}
 

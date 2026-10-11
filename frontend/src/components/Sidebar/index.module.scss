@@ -105,3 +105,30 @@
     color: #ef4444;
   }
 }
+
+.footer {
+  padding: 0.5rem;
+  border-top: 1px solid #1f2937;
+}
+
+.footerButton {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: none;
+  color: #9ca3af;
+  font-size: 0.8125rem;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #1f2937;
+    color: #e5e7eb;
+  }
+
+  &.footerActive {
+    background-color: #1f2937;
+    color: #ffffff;
+  }
+}

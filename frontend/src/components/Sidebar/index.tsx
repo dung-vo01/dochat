@@ -7,6 +7,8 @@ interface Props {
   onNew: () => void;
   onSelect: (id: number) => void;
   onDelete: (id: number) => void;
+  metricsActive: boolean;
+  onToggleMetrics: () => void;
 }
 
 const Sidebar = ({
@@ -15,6 +17,8 @@ const Sidebar = ({
   onNew,
   onSelect,
   onDelete,
+  metricsActive,
+  onToggleMetrics,
 }: Props) => {
   return (
     <aside className={styles.sidebar}>
@@ -49,6 +53,15 @@ const Sidebar = ({
           </li>
         ))}
       </ul>
+
+      <div className={styles.footer}>
+        <button
+          className={`${styles.footerButton} ${metricsActive ? styles.footerActive : ""}`}
+          onClick={onToggleMetrics}
+        >
+          System health
+        </button>
+      </div>
     </aside>
   );
 };

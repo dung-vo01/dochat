@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Chat from "@/components/Chat";
+import Metrics from "@/components/Metrics";
 import Sidebar from "@/components/Sidebar";
 import {
   fetchConversations,
@@ -12,6 +13,7 @@ import { Conversation } from "./types";
 function App() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
+  const [showMetrics, setShowMetrics] = useState(false);
 
   useEffect(() => {
     void loadConversations();
@@ -26,10 +28,12 @@ function App() {
     const conv = await createConversation();
     setConversations((prev) => [conv, ...prev]);
     setActiveId(conv.id);
+    setShowMetrics(false);
   };
 
   const handleSelect = async (id: number) => {
     setActiveId(id);
+    setShowMetrics(false);
   };
 
   const handleDelete = async (id: number) => {
@@ -46,16 +50,22 @@ function App() {
     <div className="layout">
       <Sidebar
         conversations={conversations}
-        activeId={activeId}
+        activeId={showMetrics ? null : activeId}
         onNew={() => void handleNew()}
         onSelect={handleSelect}
         onDelete={(id) => void handleDelete(id)}
+        metricsActive={showMetrics}
+        onToggleMetrics={() => setShowMetrics((v) => !v)}
       />
       <main className="main">
-        <Chat
-          conversationId={activeId}
-          handleFirstMessage={handleFirstMessage}
-        />
+        {showMetrics ? (
+          <Metrics />
+        ) : (
+          <Chat
+            conversationId={activeId}
+            handleFirstMessage={handleFirstMessage}
+          />
+        )}
       </main>
     </div>
   );

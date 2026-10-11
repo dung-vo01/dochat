@@ -1,4 +1,4 @@
-import type { SSEChunk } from "@/types";
+import type { SSEChunk, Source } from "@/types";
 import { extractErrorDetail } from "@/api/http";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -8,6 +8,7 @@ export async function streamChat(
   message: string,
   onChunk: (text: string) => void,
   onToolCall: (toolName: string) => void,
+  onSources: (sources: Source[]) => void,
   signal: AbortSignal,
 ): Promise<void> {
   const res = await fetch(`${BASE_URL}/api/chat`, {
@@ -45,7 +46,10 @@ export async function streamChat(
         onToolCall(chunk.tool);
       } else if ("text" in chunk) {
         onChunk(chunk.text);
+      } else if ("sources" in chunk) {
+        onSources(chunk.sources);
       }
+      // "context" events (everything retrieved) are for debugging/evals; ignored here.
     }
   }
 }
