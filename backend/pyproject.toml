@@ -13,6 +13,8 @@ dependencies = [
     "pypdf>=4.0.0",
     "python-multipart>=0.0.12",
     "asyncpg>=0.30.0",
+    "alembic>=1.20.0",
+    "anyio>=4.14.2",
 ]
 
 [project.optional-dependencies]
@@ -20,7 +22,16 @@ dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.24.0",
     "httpx>=0.27.0",
+    "reportlab>=5.0.1",
 ]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff.lint.per-file-ignores]
+# Fixture text is long prose split across lines on purpose.
+"evals/fixtures/*" = ["ISC004"]
 
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path", "fastapi.Body"]
