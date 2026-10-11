@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,14 +36,26 @@ TOOLS = [
         "function": {
             "name": "clear_chat_history",
             "description": "Clears the current conversation history when the user asks to reset or start over.",
-            "parameters": {
-                "type": "object",
-                "properties": {"conversation_id": {"type": "integer"}},
-                "required": ["conversation_id"],
-            },
+            # No parameters: the server always targets the current conversation.
+            "parameters": {"type": "object", "properties": {}, "required": []},
         },
     },
 ]
+
+
+# Tools that change state. The model may only run them when the *user's own latest
+# message* asks for it - never because text inside an uploaded document told it to
+# (indirect prompt injection). The user's message can't be forged by a document.
+GATED_TOOLS = {
+    "clear_chat_history": re.compile(
+        r"\b(clear|reset|wipe|erase|delete|start over|start fresh)\b", re.IGNORECASE
+    ),
+}
+
+
+def tool_allowed(name: str, user_message: str) -> bool:
+    pattern = GATED_TOOLS.get(name)
+    return pattern is None or bool(pattern.search(user_message))
 
 
 def handle_get_current_datetime(**kwargs) -> str:
@@ -65,7 +78,7 @@ async def handle_web_search(query: str, **kwargs) -> str:
             input=query,
         )
         return response.output_text
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - report instead of crashing
         return json.dumps({"error": f"Web search failed: {e!s}"})
 
 
@@ -75,7 +88,7 @@ async def handle_clear_chat_history(
     try:
         await clear_messages(db, conversation_id)
         return json.dumps({"success": True, "message": "Chat history cleared."})
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - report instead of crashing
         return json.dumps({"success": False, "error": str(e)})
 
 

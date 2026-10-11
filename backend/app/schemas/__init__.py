@@ -15,12 +15,20 @@ class ConversationResponse(BaseModel):
     created_at: datetime
 
 
+class SourceResponse(BaseModel):
+    n: int
+    filename: str
+    page: int | None = None
+    snippet: str = ""
+
+
 class MessageResponse(BaseModel):
     model_config = {"from_attributes": True}
 
     id: int
     role: str
     content: str
+    sources: list[SourceResponse] | None = None
     created_at: datetime
 
 
