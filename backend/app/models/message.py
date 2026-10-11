@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import JSON, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -16,6 +16,8 @@ class Message(Base):
 
     role: Mapped[str] = mapped_column(String(20))  # user | assistant | tool
     content: Mapped[str] = mapped_column(Text)
+    # Citations the answer actually used: [{n, filename, page, snippet}] (assistant messages only)
+    sources: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
     conversation_id: Mapped[int] = mapped_column(ForeignKey("conversations.id"))
     conversation: Mapped[Conversation] = relationship(

@@ -57,9 +57,15 @@ async def get_messages(db: AsyncSession, conversation_id: int) -> list[MessageRe
 
 
 async def save_message(
-    db: AsyncSession, conversation_id: int, role: str, content: str
+    db: AsyncSession,
+    conversation_id: int,
+    role: str,
+    content: str,
+    sources: list[dict] | None = None,
 ) -> MessageResponse:
-    message = Message(conversation_id=conversation_id, role=role, content=content)
+    message = Message(
+        conversation_id=conversation_id, role=role, content=content, sources=sources
+    )
 
     db.add(message)
     await db.commit()
