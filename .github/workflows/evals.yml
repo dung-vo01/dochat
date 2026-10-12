@@ -1,0 +1,51 @@
+name: Evals
+
+# Manual only: this calls the OpenAI API and costs money, so it is not run on every push.
+# Use it as a gate before a release:  Actions -> Evals -> Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      min_pass:
+        description: Minimum overall pass rate (0-1)
+        default: "0.9"
+      runs:
+        description: Repeats per case (non-determinism)
+        default: "3"
+
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: dochat
+          POSTGRES_PASSWORD: dochat
+          POSTGRES_DB: dochat
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U dochat" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: postgresql://dochat:dochat@localhost:5432/dochat
+      ALLOW_ORIGINS: http://localhost:3000
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-4o
+      OPENAI_EMBED_MODEL: text-embedding-3-small
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - run: uv run alembic upgrade head
+      - name: Golden set
+        run: uv run python -m evals.run_evals --runs ${{ inputs.runs }} --min-pass ${{ inputs.min_pass }} --label ci
+      - name: Held-out set
+        run: uv run python -m evals.run_evals --golden evals/golden_holdout.jsonl --runs ${{ inputs.runs }} --min-pass ${{ inputs.min_pass }} --label ci-holdout
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-reports
+          path: backend/evals/reports/

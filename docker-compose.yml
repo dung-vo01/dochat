@@ -1,0 +1,39 @@
+# Local stack: Postgres + the API. The frontend runs with `npm run dev` (or on Vercel).
+#
+#   OPENAI_API_KEY=sk-... docker compose up --build
+#
+# The API is then on http://localhost:8000
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: dochat
+      POSTGRES_PASSWORD: dochat
+      POSTGRES_DB: dochat
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dochat"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://dochat:dochat@db:5432/dochat
+      ALLOW_ORIGINS: http://localhost:3000
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?set OPENAI_API_KEY}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      OPENAI_EMBED_MODEL: ${OPENAI_EMBED_MODEL:-text-embedding-3-small}
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma:/data/chroma
+
+volumes:
+  pgdata:
+  chroma:
