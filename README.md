@@ -2,7 +2,7 @@
 
 Chat with your documents. Upload PDFs to a conversation, ask questions, and get answers that cite the page they came from. A full-stack RAG app built to explore what it takes to make an LLM feature trustworthy enough to run: streaming, retrieval, tool calling, evaluation, and observability.
 
-![Dochat demo](demo/demo.gif)
+![Dochat demo](demo/conversation-demo.gif)
 
 ## What it does
 
